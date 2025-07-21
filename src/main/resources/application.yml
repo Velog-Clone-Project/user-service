@@ -9,4 +9,4 @@ spring:
     import: optional:configserver:${CONFIG_SERVER_URL:http://192.168.192.2:30088} # VPN
 
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
