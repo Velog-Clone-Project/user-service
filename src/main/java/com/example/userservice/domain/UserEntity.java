@@ -21,6 +21,9 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String userId;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private String email;
+
     @Column(nullable = false)
     private String profileName;
 

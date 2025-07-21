@@ -2,6 +2,7 @@ package com.example.userservice.service;
 
 import com.example.userservice.domain.UserEntity;
 import com.example.userservice.dto.*;
+import com.example.userservice.event.UserEventPublisher;
 import com.example.userservice.exception.InvalidFileTypeException;
 import com.example.userservice.exception.NoImageProvidedException;
 import com.example.userservice.exception.UserAccessDeniedException;
@@ -23,6 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final MinioService minioService;
+    private final UserEventPublisher userEventPublisher;
 
     private static final String DEFAULT_PROFILE_IMAGE_URL = "https://default-profile-image-url";
 
@@ -83,13 +85,8 @@ public class UserService {
                 .profileName(user.getProfileName())
                 .profileImageUrl(user.getProfileImageUrl())
                 .bio(user.getBio())
-                .email("email info") // TODO: auth-service와 연동 예정, 현재는 mock data 사용
+                .email(user.getEmail())
                 .build();
-
-        // TODO: email 정보를 굳이 auth-service에서 가져와야하는지 검토
-        //       auth-service에서 유저 정보를 받아와 사용자 생성 시점에서 email도 같이 받아와
-        //      UserEntity에 email 필드를 추가하는 방향도 고려해볼 수 있음
-        //      UserEntity에서는 @Column(nullable = false, updatable = false) 이런식으로 DDL레벨에서도 방어가능
     }
 
     @Transactional
@@ -115,7 +112,7 @@ public class UserService {
                 .profileName(user.getProfileName())
                 .bio(user.getBio())
                 .profileImageUrl(user.getProfileImageUrl())
-                .email("email info") // TODO: auth-service와 연동 예정, 현재는 mock data 사용
+                .email(user.getEmail())
                 .build();
     }
 
@@ -156,7 +153,7 @@ public class UserService {
                 .profileName(user.getProfileName())
                 .bio(user.getBio())
                 .profileImageUrl(user.getProfileImageUrl())
-                .email("email info") // TODO: auth-service와 연동 예정, 현재는 mock data 사용
+                .email(user.getEmail())
                 .build();
     }
 
@@ -183,7 +180,7 @@ public class UserService {
                 .profileName(user.getProfileName())
                 .bio(user.getBio())
                 .profileImageUrl(user.getProfileImageUrl())
-                .email("email info") // TODO: auth-service와 연동 예정, 현재는 mock data 사용
+                .email(user.getEmail())
                 .build();
     }
 
@@ -232,5 +229,6 @@ public class UserService {
         userRepository.delete(user);
 
         // TODO: 작성한 게시글, 댓글, 좋아요 등 관련 데이터도 post-service, comment-service 등에서 함께 삭제되도록 이벤트 발행 (RabbitMQ)
+        userEventPublisher.sendUserDeletedEvent(userId);
     }
 }
