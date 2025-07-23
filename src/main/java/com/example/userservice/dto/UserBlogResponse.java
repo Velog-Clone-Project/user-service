@@ -11,7 +11,7 @@ import java.util.List;
 public class UserBlogResponse {
 
     private UserInfoDto user;
-    private List<BlogPostSummaryDto> posts;
+    private List<PostSummaryDto> posts;
     private Long nextCursorId;
     private boolean hasNext;
 }

@@ -38,9 +38,9 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
 
         // TODO: post-service 연동 예정, 현재는 mock data 사용
-        List<BlogPostSummaryDto> mockPosts = List.of(
+        List<PostSummaryDto> mockPosts = List.of(
                 // 1번째 포스트
-                BlogPostSummaryDto.builder()
+                PostSummaryDto.builder()
                         .postId(123L)
                         .title("MSA 아키텍처 정리")
                         .thumbnailUrl("https://thumbnail-image-url")
@@ -49,7 +49,7 @@ public class UserService {
                         .likeCount(5)
                         .build(),
                 // 2번째 포스트
-                BlogPostSummaryDto.builder()
+                PostSummaryDto.builder()
                         .postId(122L)
                         .title("Docker vs Kubernetes")
                         .thumbnailUrl("https://thumbnail-image-url")
