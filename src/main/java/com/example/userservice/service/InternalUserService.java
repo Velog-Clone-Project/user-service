@@ -1,7 +1,9 @@
 package com.example.userservice.service;
 
 import com.example.userservice.domain.UserEntity;
+import com.example.userservice.dto.InternalUserProfileResponse;
 import com.example.userservice.event.UserCreatedEvent;
+import com.example.userservice.exception.user.UserNotFoundException;
 import com.example.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,17 @@ public class InternalUserService {
                 .build();
 
         userRepository.save(user);
+    }
+
+    public InternalUserProfileResponse getUserProfileByUserId(String userId) {
+
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        return InternalUserProfileResponse.builder()
+                .profileName(user.getProfileName())
+                .profileImageUrl(user.getProfileImageUrl())
+                .build();
     }
 
 

@@ -1,14 +1,12 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.dto.InternalUserProfileResponse;
 import com.example.userservice.event.UserCreatedEvent;
 import com.example.userservice.service.InternalUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/internal/users")
@@ -24,5 +22,13 @@ public class InternalUserController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
+    }
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<?> getUserProfile(@PathVariable String userId) {
+
+        InternalUserProfileResponse response = internalUserService.getUserProfileByUserId(userId);
+
+        return ResponseEntity.ok(response);
     }
 }
