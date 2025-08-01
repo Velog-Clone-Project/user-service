@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 public class PostListResponse {
 
-    private List<PostSummaryDto> posts;
+    private List<PostSummaryDto> items;
     private Long nextCursorId;
     private boolean hasNext;
 }
