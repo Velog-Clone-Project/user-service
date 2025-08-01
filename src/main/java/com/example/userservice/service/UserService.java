@@ -1,20 +1,19 @@
 package com.example.userservice.service;
 
+import com.example.userservice.client.PostServiceClient;
 import com.example.userservice.domain.UserEntity;
 import com.example.userservice.dto.*;
 import com.example.userservice.event.UserEventPublisher;
-import com.example.userservice.exception.InvalidFileTypeException;
-import com.example.userservice.exception.NoImageProvidedException;
-import com.example.userservice.exception.UserAccessDeniedException;
+import com.example.userservice.exception.*;
 import com.example.userservice.exception.user.InvalidCursorIdException;
 import com.example.userservice.exception.user.UserNotFoundException;
 import com.example.userservice.repository.UserRepository;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final MinioService minioService;
     private final UserEventPublisher userEventPublisher;
+
+    private final PostServiceClient postServiceClient;
 
     private static final String DEFAULT_PROFILE_IMAGE_URL = "https://default-profile-image-url";
 
@@ -37,27 +38,14 @@ public class UserService {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        // TODO: post-service 연동 예정, 현재는 mock data 사용
-        List<PostSummaryDto> mockPosts = List.of(
-                // 1번째 포스트
-                PostSummaryDto.builder()
-                        .postId(123L)
-                        .title("MSA 아키텍처 정리")
-                        .thumbnailUrl("https://thumbnail-image-url")
-                        .createdAt(LocalDateTime.of(2025, 3, 28, 11, 0))
-                        .commentCount(5)
-                        .likeCount(5)
-                        .build(),
-                // 2번째 포스트
-                PostSummaryDto.builder()
-                        .postId(122L)
-                        .title("Docker vs Kubernetes")
-                        .thumbnailUrl("https://thumbnail-image-url")
-                        .createdAt(LocalDateTime.of(2025, 3, 25, 9, 20))
-                        .commentCount(3)
-                        .likeCount(10)
-                        .build()
-        );
+        PostListResponse posts;
+        try {
+            posts = postServiceClient.getPostsByUserId(userId, cursorId);
+        } catch (FeignException.NotFound e) {
+            throw new PostNotFoundException();
+        } catch (FeignException e) {
+            throw new ExternalServiceException(e);
+        }
 
         return UserBlogResponse.builder()
                 .user(UserInfoDto.builder()
@@ -66,9 +54,7 @@ public class UserService {
                         .bio(user.getBio())
                         .profileImageUrl(user.getProfileImageUrl())
                         .build())
-                .posts(mockPosts)
-                .nextCursorId(122L)
-                .hasNext(true)
+                .posts(posts)
                 .build();
     }
 
@@ -77,8 +63,8 @@ public class UserService {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        if(!user.getUserId().equals(userId)) {
-            throw  new UserAccessDeniedException();
+        if (!user.getUserId().equals(userId)) {
+            throw new UserAccessDeniedException();
         }
 
         return UserProfileResponse.builder()
@@ -95,8 +81,8 @@ public class UserService {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        if(!user.getUserId().equals(userId)) {
-            throw  new UserAccessDeniedException();
+        if (!user.getUserId().equals(userId)) {
+            throw new UserAccessDeniedException();
         }
 
         if (request.getProfileName() != null) {
@@ -131,8 +117,8 @@ public class UserService {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        if(!user.getUserId().equals(userId)) {
-            throw  new UserAccessDeniedException();
+        if (!user.getUserId().equals(userId)) {
+            throw new UserAccessDeniedException();
         }
 
         String oldImageUrl = user.getProfileImageUrl();
@@ -163,8 +149,8 @@ public class UserService {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        if(!user.getUserId().equals(userId)) {
-            throw  new UserAccessDeniedException();
+        if (!user.getUserId().equals(userId)) {
+            throw new UserAccessDeniedException();
         }
 
         String oldImageUrl = user.getProfileImageUrl();
@@ -185,36 +171,18 @@ public class UserService {
     }
 
     public PostListResponse getLikedPosts(String userId, Long cursorId) {
-        // TODO: Post-service 와 연동하여 실제 좋아요한 게시글을 가져오는 로직 구현 필요 (ex. FeignClient 또는 RabbitMQ)
 
-        List<PostSummaryDto> mockPosts = List.of(
-                PostSummaryDto.builder()
-                        .postId(123L)
-                        .title("MSA 아키텍처 정리")
-                        .thumbnailUrl("https://cdn.localhost/thumbnails/post123.jpg")
-                        .authorName("backendking")
-                        .authorProfileImageUrl("https://cdn.localhost/profile/jihyun01.jpg")
-                        .createdAt(LocalDateTime.of(2025, 3, 28, 11, 0))
-                        .commentCount(5)
-                        .likeCount(5)
-                        .build(),
-                PostSummaryDto.builder()
-                        .postId(122L)
-                        .title("Docker vs Kubernetes")
-                        .thumbnailUrl("https://cdn.localhost/thumbnails/post122.jpg")
-                        .authorName("jihyunDev")
-                        .authorProfileImageUrl("https://cdn.localhost/profile/jihyun02.jpg")
-                        .createdAt(LocalDateTime.of(2025, 3, 25, 9, 20))
-                        .commentCount(3)
-                        .likeCount(10)
-                        .build()
-        );
+        if (cursorId != null && cursorId <= 0) {
+            throw new InvalidCursorIdException();
+        }
 
-        return PostListResponse.builder()
-                .posts(mockPosts)
-                .nextCursorId(122L)
-                .hasNext(true)
-                .build();
+        try {
+            return postServiceClient.getLikedPostsByUserId(userId, cursorId);
+        } catch (FeignException.NotFound e) {
+            throw new PostNotFoundException();
+        } catch (FeignException e) {
+            throw new ExternalServiceException(e);
+        }
     }
 
     public void deleteUser(String userId) {
@@ -222,8 +190,8 @@ public class UserService {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        if(!user.getUserId().equals(userId)) {
-            throw  new UserAccessDeniedException();
+        if (!user.getUserId().equals(userId)) {
+            throw new UserAccessDeniedException();
         }
 
         userRepository.delete(user);
