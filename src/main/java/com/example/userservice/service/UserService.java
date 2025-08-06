@@ -3,6 +3,7 @@ package com.example.userservice.service;
 import com.example.userservice.client.PostServiceClient;
 import com.example.userservice.domain.UserEntity;
 import com.example.userservice.dto.*;
+import com.example.userservice.event.UpdateAuthorInfoEvent;
 import com.example.userservice.event.UserEventPublisher;
 import com.example.userservice.exception.*;
 import com.example.userservice.exception.user.InvalidCursorIdException;
@@ -92,7 +93,13 @@ public class UserService {
             user.setBio(request.getBio());
         }
 
-        // TODO: 이 변경사항을 post-service로 동기화하기 위한 이벤트 전송 필요 (ex. RabbitMQ)
+        UpdateAuthorInfoEvent event = UpdateAuthorInfoEvent.builder()
+                .userId(user.getUserId())
+                .authorName(user.getProfileName())
+                .authorProfileImageUrl(user.getProfileImageUrl())
+                .build();
+
+        userEventPublisher.sendUserUpdatedEvent(event);
 
         return UserProfileResponse.builder()
                 .profileName(user.getProfileName())
@@ -133,7 +140,13 @@ public class UserService {
 
         user.setProfileImageUrl(imageUrl);
 
-        // TODO: 이 변경사항을 post-service로 동기화하기 위한 이벤트 전송 필요 (ex. RabbitMQ)
+        UpdateAuthorInfoEvent event = UpdateAuthorInfoEvent.builder()
+                .userId(user.getUserId())
+                .authorName(user.getProfileName())
+                .authorProfileImageUrl(user.getProfileImageUrl())
+                .build();
+
+        userEventPublisher.sendUserUpdatedEvent(event);
 
         return UserProfileResponse.builder()
                 .profileName(user.getProfileName())
@@ -160,7 +173,13 @@ public class UserService {
 
         user.setProfileImageUrl(DEFAULT_PROFILE_IMAGE_URL);
 
-        // TODO: 이 변경사항을 post-service로 동기화하기 위한 이벤트 전송 필요 (ex. RabbitMQ)
+        UpdateAuthorInfoEvent event = UpdateAuthorInfoEvent.builder()
+                .userId(user.getUserId())
+                .authorName(user.getProfileName())
+                .authorProfileImageUrl(user.getProfileImageUrl())
+                .build();
+
+        userEventPublisher.sendUserUpdatedEvent(event);
 
         return UserProfileResponse.builder()
                 .profileName(user.getProfileName())

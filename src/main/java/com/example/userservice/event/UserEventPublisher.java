@@ -13,10 +13,18 @@ public class UserEventPublisher {
     private final RabbitProperties properties;
 
     public void sendUserDeletedEvent(String userId) {
-        UserDeletedEvent event = new UserDeletedEvent(userId);
         amqpTemplate.convertAndSend(
                 properties.getExchanges().getUser(),
                 properties.getRoutingKeys().getUser().getCreated(),
-                event);
+                new UserDeletedEvent(userId)
+        );
+    }
+
+    public void sendUserUpdatedEvent(UpdateAuthorInfoEvent event) {
+        amqpTemplate.convertAndSend(
+                properties.getExchanges().getUser(),
+                properties.getRoutingKeys().getUser().getUpdated(),
+                event
+        );
     }
 }
