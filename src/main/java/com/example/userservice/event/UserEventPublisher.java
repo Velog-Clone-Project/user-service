@@ -1,5 +1,6 @@
 package com.example.userservice.event;
 
+import com.example.userservice.config.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.stereotype.Service;
@@ -9,9 +10,13 @@ import org.springframework.stereotype.Service;
 public class UserEventPublisher {
 
     private final AmqpTemplate amqpTemplate;
+    private final RabbitProperties properties;
 
     public void sendUserDeletedEvent(String userId) {
         UserDeletedEvent event = new UserDeletedEvent(userId);
-        amqpTemplate.convertAndSend("user.exchange", "user.deleted", event);
+        amqpTemplate.convertAndSend(
+                properties.getExchanges().getUser(),
+                properties.getRoutingKeys().getUser().getCreated(),
+                event);
     }
 }

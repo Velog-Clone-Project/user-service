@@ -196,7 +196,6 @@ public class UserService {
 
         userRepository.delete(user);
 
-        // TODO: 작성한 게시글, 댓글, 좋아요 등 관련 데이터도 post-service, comment-service 등에서 함께 삭제되도록 이벤트 발행 (RabbitMQ)
         userEventPublisher.sendUserDeletedEvent(userId);
     }
 }
