@@ -5,7 +5,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "post-service", url = "http://post-service:8003")
+@FeignClient(name = "post-service",
+//        url = "http://post-service:8003",
+        path = "/internal")
 public interface PostServiceClient {
 
     @GetMapping("/internal/posts")
