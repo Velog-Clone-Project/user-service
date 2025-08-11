@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
         path = "/internal")
 public interface PostServiceClient {
 
-    @GetMapping("/internal/posts")
+    @GetMapping("/posts")
     PostListResponse getPostsByUserId(
             @RequestParam("userId") String userId,
             @RequestParam(value = "cursorId", required = false) Long cursorId
     );
 
-    @GetMapping("/internal/posts/liked")
+    @GetMapping("/posts/liked")
     PostListResponse getLikedPostsByUserId(
             @RequestParam("userId") String userId,
             @RequestParam(value = "cursorId", required = false) Long cursorId
