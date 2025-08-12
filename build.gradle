@@ -46,6 +46,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     implementation("io.minio:minio:8.5.17")
