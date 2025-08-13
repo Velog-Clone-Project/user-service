@@ -15,7 +15,7 @@ public class UserEventPublisher {
     public void sendUserDeletedEvent(String userId) {
         amqpTemplate.convertAndSend(
                 properties.getExchanges().getUser(),
-                properties.getRoutingKeys().getUser().getCreated(),
+                properties.getRoutingKeys().getUser().getDeleted(),
                 new UserDeletedEvent(userId)
         );
     }
