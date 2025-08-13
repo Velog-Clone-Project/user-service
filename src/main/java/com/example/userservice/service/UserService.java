@@ -38,7 +38,7 @@ public class UserService {
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        PostListResponse posts;
+        PostSummaryListDto posts;
         try {
             posts = postServiceClient.getPostsByUserId(userId, cursorId);
         } catch (FeignException.NotFound e) {
@@ -185,7 +185,7 @@ public class UserService {
                 .build();
     }
 
-    public PostListResponse getLikedPosts(String userId, Long cursorId) {
+    public PostSummaryListDto getLikedPosts(String userId, Long cursorId) {
 
         if (cursorId != null && cursorId <= 0) {
             throw new InvalidCursorIdException();

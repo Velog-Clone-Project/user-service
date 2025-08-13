@@ -2,8 +2,6 @@ package com.example.userservice.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,5 +9,5 @@ import java.util.List;
 public class UserBlogResponse {
 
     private UserInfoDto user;
-    private PostListResponse posts;
+    private PostSummaryListDto posts;
 }

@@ -1,10 +1,7 @@
 package com.example.userservice.controller;
 
 import com.example.common.dto.ApiResponse;
-import com.example.userservice.dto.PostListResponse;
-import com.example.userservice.dto.UpdateProfileRequest;
-import com.example.userservice.dto.UserBlogResponse;
-import com.example.userservice.dto.UserProfileResponse;
+import com.example.userservice.dto.*;
 import com.example.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -75,11 +72,15 @@ public class UserController {
     }
 
     @GetMapping("/me/liked-posts")
-    public ResponseEntity<ApiResponse<PostListResponse>> getLikedPosts(
+    public ResponseEntity<ApiResponse<PostSummaryListResponse>> getLikedPosts(
             @RequestHeader("X-User-Id") String userId,
             @RequestParam(value = "cursorId", required = false) Long cursorId) {
 
-        PostListResponse response = userService.getLikedPosts(userId, cursorId);
+        PostSummaryListDto posts = userService.getLikedPosts(userId, cursorId);
+
+        PostSummaryListResponse response = PostSummaryListResponse.builder()
+                .posts(posts)
+                .build();
 
         return ResponseEntity
                 .ok(new ApiResponse<>("Liked posts retrieved", response));

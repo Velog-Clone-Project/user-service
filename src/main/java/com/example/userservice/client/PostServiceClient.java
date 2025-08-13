@@ -1,6 +1,6 @@
 package com.example.userservice.client;
 
-import com.example.userservice.dto.PostListResponse;
+import com.example.userservice.dto.PostSummaryListDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface PostServiceClient {
 
     @GetMapping("/posts")
-    PostListResponse getPostsByUserId(
+    PostSummaryListDto getPostsByUserId(
             @RequestParam("userId") String userId,
             @RequestParam(value = "cursorId", required = false) Long cursorId
     );
 
     @GetMapping("/posts/liked")
-    PostListResponse getLikedPostsByUserId(
+    PostSummaryListDto getLikedPostsByUserId(
             @RequestParam("userId") String userId,
             @RequestParam(value = "cursorId", required = false) Long cursorId
     );
