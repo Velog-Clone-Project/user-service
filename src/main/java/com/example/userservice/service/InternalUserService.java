@@ -16,6 +16,9 @@ public class InternalUserService {
 
     private final UserRepository userRepository;
 
+    // TODO: 하드코딩되어있는 주소라서 나중에 환경변수로 변경 필요
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "http://192.168.192.2:9000/images/default-image.png";
+
     public void createUser(UserCreatedEvent event) {
 
         // 이미 존재하면 무시 (idempotent)
@@ -26,7 +29,7 @@ public class InternalUserService {
                 .userId(event.getUserId())
                 .email(event.getEmail())
                 .profileName(event.getProfileName())
-                .profileImageUrl("default-profile-image-url")
+                .profileImageUrl(DEFAULT_PROFILE_IMAGE_URL)
                 .bio(event.getBio())
                 .createdAt(new Date())
                 .build();
