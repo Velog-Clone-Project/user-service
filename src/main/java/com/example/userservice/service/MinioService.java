@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,11 +23,13 @@ public class MinioService {
     private final MinioConfig minioConfig;
     private final MinioProperties minioProperties;
 
-    public String upload(MultipartFile file, String objectName) {
+    public String upload(MultipartFile file) {
         try {
             MinioClient minioClient = minioConfig.minioClient();
 
             try (InputStream is = file.getInputStream()) {
+
+                String objectName = UUID.randomUUID().toString();
 
                 minioClient.putObject(PutObjectArgs.builder()
                         .bucket(minioProperties.getBucket())

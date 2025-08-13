@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +27,7 @@ public class UserService {
 
     private final PostServiceClient postServiceClient;
 
-    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://default-profile-image-url";
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "http://192.168.192.2:9000/images/default-image.png";
 
     public UserBlogResponse getUserBlog(String userId, Long cursorId) {
 
@@ -133,10 +132,7 @@ public class UserService {
             minioService.deleteIfUploaded(oldImageUrl);
         }
 
-        String originalFilename = file.getOriginalFilename();
-        String objectName = UUID.randomUUID() + "-" + originalFilename;
-
-        String imageUrl = minioService.upload(file, objectName);
+        String imageUrl = minioService.upload(file);
 
         user.setProfileImageUrl(imageUrl);
 
